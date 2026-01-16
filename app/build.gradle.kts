@@ -43,6 +43,8 @@ android {
 }
 
 dependencies {
+  implementation(libs.com.google.android.gms.scanner)
+
   implementation(libs.org.jetbrains.kotlinx.serialization.json)
 
   implementation(libs.androidx.room.runtime)

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
@@ -18,13 +19,18 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.felixjhonata.inventorymanager.R
 import com.felixjhonata.inventorymanager.model.ui_model.AddEditProductPageUiModel
+import com.felixjhonata.inventorymanager.util.BaseUtil
+import com.felixjhonata.inventorymanager.util.noRippleClickable
 import com.felixjhonata.inventorymanager.viewmodel.AddEditProductPageViewModel
 import com.felixjhonata.inventorymanager.viewmodel.EditProductPageViewModel
 
@@ -69,6 +75,7 @@ fun AddEditProductScreen(
   viewModel: AddEditProductPageViewModel,
   modifier: Modifier = Modifier
 ) {
+  val context = LocalContext.current
   val isEditPage = viewModel is EditProductPageViewModel
 
   Scaffold(
@@ -98,7 +105,24 @@ fun AddEditProductScreen(
         supportingText = {
           Text(uiModel.productSkuErrorMsg)
         },
-        enabled = !isEditPage
+        enabled = !isEditPage,
+        trailingIcon = {
+          Icon(
+            painterResource(R.drawable.barcode_reader),
+            "barcode_reader",
+            modifier = Modifier
+              .noRippleClickable(enabled = !isEditPage) {
+                BaseUtil.startScanner(
+                  context,
+                  { barcode ->
+                    barcode.rawValue?.let {
+                      viewModel.onProductSkuValueChange(it)
+                    }
+                  }
+                )
+              }
+          )
+        }
       )
 
       TextField(
@@ -123,6 +147,9 @@ fun AddEditProductScreen(
         label = {
           Text(stringResource(R.string.amount))
         },
+        keyboardOptions = KeyboardOptions(
+          keyboardType = KeyboardType.Number
+        ),
         isError = uiModel.isAmountError,
         supportingText = {
           Text(uiModel.amountErrorMsg)
