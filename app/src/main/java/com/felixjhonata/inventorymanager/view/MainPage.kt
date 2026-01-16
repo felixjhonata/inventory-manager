@@ -6,10 +6,14 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -24,6 +28,7 @@ import com.felixjhonata.inventorymanager.R
 import com.felixjhonata.inventorymanager.model.entity.Product
 import com.felixjhonata.inventorymanager.model.navigation.EditProductNav
 import com.felixjhonata.inventorymanager.ui.theme.InventoryManagerTheme
+import kotlinx.coroutines.launch
 
 @Composable
 fun MainPageChildren(parentNavController: NavController, modifier: Modifier = Modifier) {
@@ -99,29 +104,50 @@ fun MainPageChildren(parentNavController: NavController, modifier: Modifier = Mo
 @Composable
 fun MainPage(modifier: Modifier = Modifier) {
   val navController = rememberNavController()
+  val snackBarHostState = remember { SnackbarHostState() }
+  val snackbarScope = rememberCoroutineScope()
 
-  NavHost(
+  Scaffold(
     modifier = modifier,
-    navController = navController,
-    startDestination = "main_page"
-  ) {
-    composable("main_page") {
-      MainPageChildren(navController)
-    }
+    snackbarHost = { SnackbarHost(snackBarHostState) }
+  ) { innerPaddding ->
+    NavHost(
+      modifier = Modifier
+        .padding(innerPaddding)
+        .consumeWindowInsets(innerPaddding),
+      navController = navController,
+      startDestination = "main_page"
+    ) {
+      composable("main_page") {
+        MainPageChildren(navController)
+      }
 
-    composable("add_product_page") {
-      AddProductPage({ navController.popBackStack() })
-    }
+      composable("add_product_page") {
+        AddProductPage(
+          { text: String ->
+            snackbarScope.launch {
+              snackBarHostState.showSnackbar(text, withDismissAction = true, duration = SnackbarDuration.Short)
+            }
+          },
+          { navController.popBackStack() }
+        )
+      }
 
-    composable<EditProductNav> { backStackEntry ->
-      val navClass: EditProductNav = backStackEntry.toRoute()
-      val product = Product(
-        navClass.productSku,
-        navClass.productName,
-        navClass.amount
-      )
+      composable<EditProductNav> { backStackEntry ->
+        val navClass: EditProductNav = backStackEntry.toRoute()
+        val product = Product(navClass.productSku, navClass.productName, navClass.amount
+        )
 
-      EditProductPage(product, { navController.popBackStack() })
+        EditProductPage(
+          product,
+          { text: String ->
+            snackbarScope.launch {
+              snackBarHostState.showSnackbar(text, withDismissAction = true, duration = SnackbarDuration.Short)
+            }
+          },
+          { navController.popBackStack() }
+        )
+      }
     }
   }
 }

@@ -20,25 +20,22 @@ abstract class AddEditProductPageViewModel: ViewModel() {
   private val _uiEvent = MutableSharedFlow<AddEditProductPageUiEvent>()
   val uiEvent = _uiEvent.asSharedFlow()
 
-  protected abstract suspend fun onSubmit(product: Product)
+  protected abstract fun onSubmit(product: Product)
 
   fun onSubmitButtonClick() {
     validateProduct()?.let {
-      viewModelScope.launch {
-        onSubmit(it)
-        emitOnBackPressed()
-      }
+      onSubmit(it)
     }
   }
 
   fun onBackPressed() {
     viewModelScope.launch {
-      emitOnBackPressed()
+      emitUiEvent(AddEditProductPageUiEvent.OnBackPressed)
     }
   }
 
-  protected suspend fun emitOnBackPressed() {
-    _uiEvent.emit(AddEditProductPageUiEvent.OnBackPressed)
+  protected suspend fun emitUiEvent(uiEvent: AddEditProductPageUiEvent) {
+    _uiEvent.emit(uiEvent)
   }
 
   open fun initializeProduct(product: Product) {

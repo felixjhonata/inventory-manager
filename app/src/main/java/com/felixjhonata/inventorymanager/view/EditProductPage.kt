@@ -14,6 +14,7 @@ import com.felixjhonata.inventorymanager.viewmodel.EditProductPageViewModel
 @Composable
 fun EditProductPage(
   product: Product,
+  showSnackbar: (String) -> Unit,
   onBackPressed: () -> Unit,
   modifier: Modifier = Modifier,
   viewModel: EditProductPageViewModel = hiltViewModel()
@@ -22,10 +23,13 @@ fun EditProductPage(
   LaunchedEffect(Unit) {
     viewModel.initializeProduct(product)
 
-    viewModel.uiEvent.collect { event ->
-      when (event) {
+    viewModel.uiEvent.collect { uiEvent ->
+      when (uiEvent) {
         AddEditProductPageUiEvent.OnBackPressed -> {
           onBackPressed()
+        }
+        is AddEditProductPageUiEvent.ShowSnackbar -> {
+          showSnackbar(uiEvent.text)
         }
       }
     }
