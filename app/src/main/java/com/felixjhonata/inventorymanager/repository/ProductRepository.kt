@@ -1,10 +1,10 @@
 package com.felixjhonata.inventorymanager.repository
 
+import androidx.paging.PagingSource
 import com.felixjhonata.inventorymanager.model.entity.Product
-import kotlinx.coroutines.flow.Flow
 
 interface ProductRepository {
-  fun getProducts(): Flow<List<Product>>
+  fun getProducts(): PagingSource<Int, Product>
 
   suspend fun insertProduct(product: Product)
 

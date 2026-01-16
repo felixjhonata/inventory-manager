@@ -50,6 +50,8 @@ dependencies {
   implementation(libs.androidx.room.runtime)
   ksp(libs.androidx.room.compiler)
   implementation(libs.androidx.room.ktx)
+  implementation(libs.androidx.room.paging)
+  implementation(libs.androidx.paging.compose)
 
   implementation(libs.androidx.hilt.navigation.compose)
   implementation(libs.hilt.android)

@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Card
@@ -18,9 +17,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,6 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
 import com.felixjhonata.inventorymanager.R
 import com.felixjhonata.inventorymanager.model.entity.Product
 import com.felixjhonata.inventorymanager.ui.theme.InventoryManagerTheme
@@ -109,11 +108,7 @@ fun ProductsPage(
   modifier: Modifier = Modifier,
   viewModel: ProductsPageViewModel = hiltViewModel()
 ) {
-  val uiModel by viewModel.uiModel.collectAsState()
-
-  LaunchedEffect(Unit) {
-    viewModel.getProducts()
-  }
+  val lazyProductItems = viewModel.products.collectAsLazyPagingItems()
 
   Scaffold(modifier = modifier, topBar = {
     ProductsPageAppBar()
@@ -123,7 +118,8 @@ fun ProductsPage(
     }
   }) { innerPadding ->
     when {
-      uiModel.products.isEmpty() -> {
+      lazyProductItems.loadState.refresh is LoadState.NotLoading
+          && lazyProductItems.itemCount <= 0 -> {
         NoProductView(
           Modifier
             .padding(innerPadding)
@@ -134,12 +130,18 @@ fun ProductsPage(
         LazyColumn(
           modifier = Modifier.padding(innerPadding), verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-          items(uiModel.products, key = { it.sku }) { product ->
-            ProductItem(
-              product,
-              { onProductClick(product) },
-              Modifier.padding(horizontal = 24.dp)
-            )
+          items(
+            lazyProductItems.itemCount,
+            key = lazyProductItems.itemKey { it.sku }
+          ) { index ->
+            val product = lazyProductItems[index]
+            product?.let {
+              ProductItem(
+                it,
+                { onProductClick(it) },
+                Modifier.padding(horizontal = 24.dp)
+              )
+            }
           }
         }
       }
