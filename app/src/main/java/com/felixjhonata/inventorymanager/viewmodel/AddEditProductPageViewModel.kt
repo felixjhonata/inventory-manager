@@ -34,6 +34,15 @@ abstract class AddEditProductPageViewModel: ViewModel() {
     }
   }
 
+  protected fun showUniqueCodeError() {
+    _uiModel.update {
+      it.copy(
+        isProductSkuError = true,
+        productSkuErrorMsg = "SKU already exist!"
+      )
+    }
+  }
+
   protected suspend fun emitUiEvent(uiEvent: AddEditProductPageUiEvent) {
     _uiEvent.emit(uiEvent)
   }

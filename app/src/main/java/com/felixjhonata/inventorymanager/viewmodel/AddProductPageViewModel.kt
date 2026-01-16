@@ -1,5 +1,6 @@
 package com.felixjhonata.inventorymanager.viewmodel
 
+import android.database.sqlite.SQLiteConstraintException
 import android.util.Log
 import androidx.lifecycle.viewModelScope
 import com.felixjhonata.inventorymanager.model.entity.Product
@@ -20,11 +21,21 @@ class AddProductPageViewModel @Inject constructor(
         productRepository.insertProduct(product)
         emitUiEvent(AddEditProductPageUiEvent.ShowSnackbar("Product Inserted Successfully!"))
         emitUiEvent(AddEditProductPageUiEvent.OnBackPressed)
+      } catch (e: SQLiteConstraintException) {
+        if (e.message?.startsWith("UNIQUE") == true) {
+          showUniqueCodeError()
+        } else {
+          emitGeneralError()
+        }
       } catch (e: Exception) {
         Log.e("AddProductPageViewModelError", e.message.orEmpty())
-        emitUiEvent(AddEditProductPageUiEvent.ShowSnackbar("An error occurred when inserting product!"))
+        emitGeneralError()
       }
     }
+  }
+
+  private suspend fun emitGeneralError() {
+    emitUiEvent(AddEditProductPageUiEvent.ShowSnackbar("An error occurred when inserting product!"))
   }
 
 }
