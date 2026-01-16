@@ -24,7 +24,7 @@ fun EditProductPage(
 
     viewModel.uiEvent.collect { event ->
       when (event) {
-        is AddEditProductPageUiEvent.OnBackPressed -> {
+        AddEditProductPageUiEvent.OnBackPressed -> {
           onBackPressed()
         }
       }
