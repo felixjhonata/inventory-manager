@@ -26,15 +26,19 @@ abstract class AddEditProductPageViewModel: ViewModel() {
     validateProduct()?.let {
       viewModelScope.launch {
         onSubmit(it)
-        onBackPressed()
+        emitOnBackPressed()
       }
     }
   }
 
   fun onBackPressed() {
     viewModelScope.launch {
-      _uiEvent.emit(AddEditProductPageUiEvent.OnBackPressed)
+      emitOnBackPressed()
     }
+  }
+
+  protected suspend fun emitOnBackPressed() {
+    _uiEvent.emit(AddEditProductPageUiEvent.OnBackPressed)
   }
 
   open fun initializeProduct(product: Product) {

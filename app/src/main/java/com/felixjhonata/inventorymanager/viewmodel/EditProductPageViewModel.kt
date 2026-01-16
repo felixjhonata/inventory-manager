@@ -26,7 +26,7 @@ class EditProductPageViewModel @Inject constructor(
     product?.let {
       viewModelScope.launch {
         productRepository.deleteProduct(it)
-        onBackPressed()
+        emitOnBackPressed()
       }
     }
   }
