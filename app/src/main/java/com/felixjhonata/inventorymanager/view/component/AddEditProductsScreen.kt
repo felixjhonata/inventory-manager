@@ -97,7 +97,8 @@ fun AddEditProductScreen(
         isError = uiModel.isProductSkuError,
         supportingText = {
           Text(uiModel.productSkuErrorMsg)
-        }
+        },
+        enabled = !isEditPage
       )
 
       TextField(
