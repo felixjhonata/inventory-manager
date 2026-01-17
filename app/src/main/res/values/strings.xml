@@ -1,12 +1,17 @@
 <resources>
     <string name="app_name" translatable="false">InventoryManager</string>
     <string name="app_database" translatable="false">inventory_manager_db</string>
-    <string name="activities">Activities</string>
+
     <string name="products">Products</string>
     <string name="no_product">No product</string>
     <string name="add_product">Add product</string>
     <string name="edit_product">Edit product</string>
+
+    <string name="activities">Activities</string>
+    <string name="no_activity">No activity</string>
+
     <string name="product_sku">Product SKU</string>
     <string name="product_name">Product Name</string>
+
     <string name="amount">Amount</string>
 </resources>

@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="activities">Aktivitas</string>
     <string name="products">Produk</string>
     <string name="no_product">Tidak ada produk</string>
     <string name="add_product">Tambah produk</string>
     <string name="edit_product">Ubah produk</string>
+
+    <string name="activities">Aktivitas</string>
+    <string name="no_activity">Tidak ada aktivitas</string>
+
     <string name="product_sku">SKU Produk</string>
     <string name="product_name">Nama Produk</string>
+
     <string name="amount">Jumlah</string>
 </resources>

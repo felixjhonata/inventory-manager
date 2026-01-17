@@ -1,16 +1,17 @@
 package com.felixjhonata.inventorymanager.repository.impl
 
+import androidx.paging.PagingSource
 import com.felixjhonata.inventorymanager.database.dao.ActivityDao
 import com.felixjhonata.inventorymanager.model.entity.Activity
+import com.felixjhonata.inventorymanager.model.entity.ActivityWithProduct
 import com.felixjhonata.inventorymanager.repository.ActivityRepository
-import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 
 class ActivityRepositoryImpl @Inject constructor(
   private val activityDao: ActivityDao
 ): ActivityRepository {
-  override fun getActivities(): Flow<List<Activity>> {
-    return activityDao.getActivities()
+  override fun getActivitiesWithProduct(): PagingSource<Int, ActivityWithProduct> {
+    return activityDao.getActivitiesWithProduct()
   }
 
   override suspend fun insertActivity(activity: Activity) {

@@ -29,6 +29,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -36,10 +37,23 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.paging.LoadState
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.itemKey
+import com.felixjhonata.inventorymanager.R
 import com.felixjhonata.inventorymanager.ui.theme.InventoryManagerTheme
+import com.felixjhonata.inventorymanager.viewmodel.ActivitiesPageViewModel
 
 @Composable
-fun ActivityItem(count: Int, modifier: Modifier = Modifier) {
+private fun ActivityItem(
+  activityId: String,
+  activityDate: String,
+  productName: String,
+  amount: String,
+  isIn: Boolean,
+  modifier: Modifier = Modifier
+) {
   Card(modifier = modifier) {
     Row(
       Modifier
@@ -53,13 +67,21 @@ fun ActivityItem(count: Int, modifier: Modifier = Modifier) {
           .width(48.dp)
           .aspectRatio(1f),
         shape = RoundedCornerShape(8.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.Green)
+        colors = CardDefaults.cardColors(
+          containerColor = if (isIn) Color.Green else Color.Red
+        )
       ) {
         Box(
           modifier = Modifier.fillMaxSize(),
           contentAlignment = Alignment.Center
         ) {
-          Text("IN", style = TextStyle(fontWeight = FontWeight.Bold))
+          Text(
+            if (isIn) "IN" else "OUT",
+            style = TextStyle(
+              fontWeight = FontWeight.Bold,
+              color = if (isIn) Color.Black else Color.White
+            )
+          )
         }
       }
 
@@ -67,14 +89,14 @@ fun ActivityItem(count: Int, modifier: Modifier = Modifier) {
         Modifier.weight(1f)
       ) {
         Text(
-          "PROD-2508-${count.toString().padStart(4, '0')}",
+          activityId,
           style = TextStyle(
             fontSize = 12.sp,
             color = Color.Gray
           )
         )
         Text(
-          "Samsung S25 Ultra",
+          productName,
           style = TextStyle(
             fontSize = 18.sp
           ),
@@ -87,7 +109,7 @@ fun ActivityItem(count: Int, modifier: Modifier = Modifier) {
         horizontalAlignment = Alignment.End
       ) {
         Text(
-          "8 Aug 2025",
+          activityDate,
           style = TextStyle(
             fontSize = 12.sp,
             color = Color.Gray
@@ -95,7 +117,7 @@ fun ActivityItem(count: Int, modifier: Modifier = Modifier) {
           textAlign = TextAlign.End
         )
         Text(
-          "200x",
+          amount,
           style = TextStyle(
             fontSize = 18.sp,
             fontWeight = FontWeight.Bold
@@ -108,6 +130,18 @@ fun ActivityItem(count: Int, modifier: Modifier = Modifier) {
   }
 }
 
+@Composable
+fun NoActivityPage(modifier: Modifier = Modifier) {
+  Box(
+    modifier = modifier, contentAlignment = Alignment.Center
+  ) {
+    Text(
+      stringResource(R.string.no_activity),
+      style = TextStyle(fontSize = 18.sp, color = Color.Gray)
+    )
+  }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActivitiesPageAppBar(modifier: Modifier = Modifier) {
@@ -115,7 +149,7 @@ fun ActivitiesPageAppBar(modifier: Modifier = Modifier) {
     modifier = modifier,
     title = {
       Text(
-        "Activities Page",
+        stringResource(R.string.activities),
         style = TextStyle(
           fontWeight = FontWeight.Bold,
           fontSize = 24.sp
@@ -138,8 +172,11 @@ fun ActivitiesPageAppBar(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActivitiesPage(
-  modifier: Modifier = Modifier
+  modifier: Modifier = Modifier,
+  viewModel: ActivitiesPageViewModel = hiltViewModel()
 ) {
+  val lazyActivityWithProduct = viewModel.activities.collectAsLazyPagingItems()
+
   Scaffold(
     modifier = modifier,
     topBar = {
@@ -153,40 +190,39 @@ fun ActivitiesPage(
       }
     }
   ) { innerPadding ->
-    Column(Modifier.padding(innerPadding)) {
-      LazyColumn(
-        Modifier
-          .fillMaxWidth()
-      ) {
-        item {
-          Spacer(Modifier.height(12.dp))
-        }
+    when {
+      lazyActivityWithProduct.loadState.refresh is LoadState.NotLoading && lazyActivityWithProduct.itemCount <= 0 -> {
+        NoActivityPage(
+          Modifier.padding(innerPadding)
+            .fillMaxSize()
+        )
+      }
 
-        item {
-          Text(
-            "August 2025",
-            modifier = Modifier
-              .padding(
-                start = 24.dp,
-                end = 24.dp,
-                bottom = 12.dp
-              ),
-            style = TextStyle(
-              fontWeight = FontWeight.Bold,
-              fontSize = 18.sp
-            )
-          )
-        }
-
-        items(20) { count ->
-          ActivityItem(
-            count,
-            Modifier.padding(
-              start = 24.dp,
-              end = 24.dp,
-              bottom = 12.dp
-            )
-          )
+      else -> {
+        LazyColumn(
+          Modifier
+            .padding(innerPadding)
+            .fillMaxWidth()
+        ) {
+          item {
+            Spacer(Modifier.height(12.dp))
+          }
+          items(
+            count = lazyActivityWithProduct.itemCount,
+            key = lazyActivityWithProduct.itemKey { it.activity.activityId }) { index ->
+            lazyActivityWithProduct[index]?.let {
+              ActivityItem(
+                it.activity.activityId,
+                viewModel.formatMillisDateTime(it.activity.activityDate),
+                it.product.productName,
+                viewModel.formatNumber(it.activity.amount),
+                isIn = it.activity.amount >= 0,
+                Modifier.padding(
+                  start = 24.dp, end = 24.dp, bottom = 12.dp
+                )
+              )
+            }
+          }
         }
       }
     }
@@ -197,6 +233,12 @@ fun ActivitiesPage(
 @Composable
 private fun ActivitiesPagePreview() {
   InventoryManagerTheme {
-    ActivitiesPage()
+    ActivityItem(
+      "ACT-001",
+      "20 Aug 2025",
+      "Product 1",
+      "20x",
+      false
+    )
   }
 }
