@@ -1,5 +1,7 @@
 package com.felixjhonata.inventorymanager.view
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -169,7 +171,7 @@ fun ActivitiesPageAppBar(modifier: Modifier = Modifier) {
   )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@RequiresApi(Build.VERSION_CODES.O) @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ActivitiesPage(
   modifier: Modifier = Modifier,
