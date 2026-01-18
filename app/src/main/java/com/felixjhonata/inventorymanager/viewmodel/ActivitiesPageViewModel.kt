@@ -1,5 +1,7 @@
 package com.felixjhonata.inventorymanager.viewmodel
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -22,8 +24,9 @@ class ActivitiesPageViewModel @Inject constructor(
     config = PagingConfig(pageSize = 20)
   ) { activityRepository.getActivitiesWithProduct() }.flow.cachedIn(viewModelScope)
 
+  @RequiresApi(Build.VERSION_CODES.O)
   fun formatMillisDateTime(millis: Long): String {
-    val formatter = DateTimeFormatter.ofPattern("d MMM YYYY")
+    val formatter = DateTimeFormatter.ofPattern("d MMM yyyy")
     val instant = Instant.ofEpochMilli(millis)
     val date = instant.atZone(ZoneId.systemDefault()).toLocalDateTime()
 
