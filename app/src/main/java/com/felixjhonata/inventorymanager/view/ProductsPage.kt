@@ -1,6 +1,5 @@
 package com.felixjhonata.inventorymanager.view
 
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -128,7 +127,7 @@ fun ProductsPage(
       }
       else -> {
         LazyColumn(
-          modifier = Modifier.padding(innerPadding), verticalArrangement = Arrangement.spacedBy(12.dp)
+          modifier = Modifier.padding(innerPadding)
         ) {
           items(
             lazyProductItems.itemCount,
@@ -139,7 +138,11 @@ fun ProductsPage(
               ProductItem(
                 it,
                 { onProductClick(it) },
-                Modifier.padding(horizontal = 24.dp)
+                Modifier.padding(
+                  start = 24.dp,
+                  end = 24.dp,
+                  bottom = 12.dp
+                )
               )
             }
           }

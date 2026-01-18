@@ -206,9 +206,6 @@ fun ActivitiesPage(
             .padding(innerPadding)
             .fillMaxWidth()
         ) {
-          item {
-            Spacer(Modifier.height(12.dp))
-          }
           items(
             count = lazyActivityWithProduct.itemCount,
             key = lazyActivityWithProduct.itemKey { it.activity.activityId }) { index ->
